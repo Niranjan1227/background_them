@@ -40,11 +40,12 @@
             text-decoration: none;
             margin: 0 15px;
             font-size: 1.2em;
-            transition: color 0.3s;
+            transition: color 0.3s, transform 0.3s;
         }
 
         nav a:hover {
             color: #ffbe76;
+            transform: scale(1.1);
         }
 
         section {
@@ -77,10 +78,9 @@
             z-index: -1;
         }
 
-        .theme-button {
+        .theme-button, .music-button {
             position: fixed;
             bottom: 20px;
-            right: 20px;
             padding: 10px 20px;
             font-size: 1em;
             color: #fff;
@@ -91,7 +91,15 @@
             transition: transform 0.3s, box-shadow 0.3s;
         }
 
-        .theme-button:hover {
+        .theme-button {
+            right: 20px;
+        }
+
+        .music-button {
+            right: 100px;
+        }
+
+        .theme-button:hover, .music-button:hover {
             transform: scale(1.1);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
@@ -188,6 +196,20 @@
             50% { transform: rotate(10deg) scale(1.05); }
             100% { transform: rotate(0deg) scale(1); }
         }
+
+        /* Confetti */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: hsl(0, 80%, 60%);
+            animation: fall 2s linear forwards;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -199,6 +221,7 @@
         <a href="#vortex" onclick="showSection('vortex')">Vortex</a>
     </nav>
     <button class="theme-button" onclick="changeTheme()">Switch Theme</button>
+    <button class="music-button" onclick="toggleMusic()">Toggle Music</button>
     <div class="cursor" id="cursor" style="display: none;"></div>
 
     <section id="particles" class="active">
@@ -239,6 +262,10 @@
         <p>Spin into the vortex!</p>
     </section>
 
+    <audio id="backgroundMusic" loop>
+        <source src="https://www.kozco.com/tech/piano2.wav" type="audio/wav">
+    </audio>
+
     <script>
         // Theme Switcher
         const themes = [
@@ -254,12 +281,39 @@
             document.body.style.background = `linear-gradient(45deg, ${theme.join(', ')})`;
         }
 
+        // Music Toggle
+        const music = document.getElementById('backgroundMusic');
+        let isMusicPlaying = false;
+
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                music.pause();
+            } else {
+                music.play();
+            }
+            isMusicPlaying = !isMusicPlaying;
+        }
+
+        // Confetti Burst
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * window.innerWidth}px`;
+                confetti.style.background = `hsl(${Math.random() * 360}, 80%, 60%)`;
+                confetti.style.animationDuration = `${Math.random() * 2 + 1}s`;
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
         // Section Navigation
         function showSection(id) {
             document.querySelectorAll('section').forEach(section => {
                 section.classList.remove('active');
             });
             document.getElementById(id).classList.add('active');
+            createConfetti();
             if (id === 'glow') {
                 document.getElementById('cursor').style.display = 'block';
                 document.body.style.cursor = 'none';
@@ -288,8 +342,8 @@
             }
 
             update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
+                this.x += this.speedX * (isMusicPlaying ? music.currentTime % 1 + 1 : 1);
+                this.y += this.speedY * (isMusicPlaying ? music.currentTime % 1 + 1 : 1);
                 if (this.size > 0.2) this.size -= 0.01;
                 if (this.x < 0 || this.x > particlesCanvas.width) this.speedX *= -1;
                 if (this.y < 0 || this.y > particlesCanvas.height) this.speedY *= -1;
@@ -345,7 +399,7 @@
                 waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
                 waveCtx.beginPath();
                 for (let x = 0; x < waveCanvas.width; x++) {
-                    const y = waveCanvas.height / 2 + Math.sin(x * wave.wavelength + time) * wave.amplitude;
+                    const y = waveCanvas.height / 2 + Math.sin(x * wave.wavelength + time) * (wave.amplitude * (isMusicPlaying ? music.currentTime % 1 + 1 : 1));
                     waveCtx.lineTo(x, y);
                 }
                 waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
@@ -383,8 +437,8 @@
                     let dy = cubeMouse.y - this.y;
                     let distance = Math.sqrt(dx * dx + dy * dy);
                     if (distance < 120) {
-                        this.speedX += dx / distance;
-                        this.speedY += dy / distance;
+                        this.speedX += dx / distance * (isMusicPlaying ? music.currentTime % 1 + 1 : 1);
+                        this.speedY += dy / distance * (isMusicPlaying ? music.currentTime % 1 + 1 : 1);
                     }
                 }
                 this.x += this.speedX;
@@ -465,8 +519,8 @@
                     let distance = Math.sqrt(dx * dx + dy * dy);
                     if (distance < 150) {
                         let angle = Math.atan2(dy, dx);
-                        this.speedX = -Math.cos(angle) * 2;
-                        this.speedY = -Math.sin(angle) * 2;
+                        this.speedX = -Math.cos(angle) * 2 * (isMusicPlaying ? music.currentTime % 1 + 1 : 1);
+                        this.speedY = -Math.sin(angle) * 2 * (isMusicPlaying ? music.currentTime % 1 + 1 : 1);
                     }
                 }
                 this.x += this.speedX;
@@ -550,7 +604,7 @@
             }
 
             update() {
-                this.angle += this.speed;
+                this.angle += this.speed * (isMusicPlaying ? music.currentTime % 1 + 1 : 1);
                 this.radius += 0.1;
                 this.x = vortexCanvas.width / 2 + Math.cos(this.angle) * this.radius;
                 this.y = vortexCanvas.height / 2 + Math.sin(this.angle) * this.radius;
