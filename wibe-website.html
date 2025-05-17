@@ -197,6 +197,38 @@
             100% { transform: rotate(0deg) scale(1); }
         }
 
+        /* Disco Section */
+        #disco h1 {
+            animation: discoText 1.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes discoText {
+            from { text-shadow: 0 0 10px #fff, 0 0 20px #ff0a5b, 0 0 30px #ff0a5b; }
+            to { text-shadow: 0 0 20px #fff, 0 0 30px #00f4d6, 0 0 40px #00f4d6; }
+        }
+
+        .dance-floor {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 200px;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .tile {
+            background: rgba(255, 255, 255, 0.2);
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .tile.active {
+            background: hsl(0, 80%, 60%);
+            transform: scale(1.1);
+        }
+
         /* Confetti */
         .confetti {
             position: absolute;
@@ -219,6 +251,7 @@
         <a href="#cube" onclick="showSection('cube')">Cube</a>
         <a href="#glow" onclick="showSection('glow')">Glow</a>
         <a href="#vortex" onclick="showSection('vortex')">Vortex</a>
+        <a href="#disco" onclick="showSection('disco')">Disco</a>
     </nav>
     <button class="theme-button" onclick="changeTheme()">Switch Theme</button>
     <button class="music-button" onclick="toggleMusic()">Toggle Music</button>
@@ -262,6 +295,13 @@
         <p>Spin into the vortex!</p>
     </section>
 
+    <section id="disco">
+        <canvas id="discoCanvas"></canvas>
+        <h1>Dance the Cosmic Vibe!</h1>
+        <p>Click the floor to light it up!</p>
+        <div class="dance-floor" id="danceFloor"></div>
+    </section>
+
     <audio id="backgroundMusic" loop>
         <source src="https://www.kozco.com/tech/piano2.wav" type="audio/wav">
     </audio>
@@ -273,7 +313,8 @@
             ['#feca57', '#ff5e78', '#4834d4'],
             ['#f72585', '#7209b7', '#3a0ca3'],
             ['#ffbe76', '#ff758f', '#6b48ff'],
-            ['#00ddeb', '#ff5e78', '#a14f9d']
+            ['#00ddeb', '#ff5e78', '#a14f9d'],
+            ['#ff0a5b', '#00f4d6', '#3b28cc']
         ];
 
         function changeTheme() {
@@ -314,7 +355,7 @@
             });
             document.getElementById(id).classList.add('active');
             createConfetti();
-            if (id === 'glow') {
+            if (id === 'glow' || id === 'disco') {
                 document.getElementById('cursor').style.display = 'block';
                 document.body.style.cursor = 'none';
             } else {
@@ -577,11 +618,15 @@
             glowMouse.y = event.y;
             document.getElementById('cursor').style.left = `${event.clientX - 10}px`;
             document.getElementById('cursor').style.top = `${event.clientY - 10}px`;
+            discoMouse.x = event.x;
+            discoMouse.y = event.y;
         });
 
         window.addEventListener('mouseout', () => {
             glowMouse.x = null;
             glowMouse.y = null;
+            discoMouse.x = null;
+            discoMouse.y = null;
         });
 
         // Vortex Section
@@ -644,6 +689,78 @@
         initVortex();
         animateVortex();
 
+        // Disco Section
+        const discoCanvas = document.getElementById('discoCanvas');
+        const discoCtx = discoCanvas.getContext('2d');
+        discoCanvas.width = window.innerWidth;
+        discoCanvas.height = window.innerHeight;
+        let discoMouse = { x: null, y: null };
+        let discoOrbs = [];
+        const discoOrbCount = 20;
+
+        class DiscoOrb {
+            constructor() {
+                this.x = Math.random() * discoCanvas.width;
+                this.y = Math.random() * discoCanvas.height;
+                this.size = Math.random() * 20 + 10;
+                this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+                this.phase = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                this.size = 20 + Math.sin(this.phase + (isMusicPlaying ? music.currentTime : 0)) * 10;
+                this.phase += 0.05;
+            }
+
+            draw() {
+                discoCtx.beginPath();
+                discoCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                discoCtx.fillStyle = this.color;
+                discoCtx.shadowBlur = 20;
+                discoCtx.shadowColor = this.color;
+                discoCtx.fill();
+            }
+        }
+
+        function initDiscoOrbs() {
+            discoOrbs.length = 0;
+            for (let i = 0; i < discoOrbCount; i++) {
+                discoOrbs.push(new DiscoOrb());
+            }
+        }
+
+        function animateDisco() {
+            if (document.getElementById('disco').classList.contains('active')) {
+                discoCtx.clearRect(0, 0, discoCanvas.width, discoCanvas.height);
+                discoOrbs.forEach(orb => {
+                    orb.update();
+                    orb.draw();
+                });
+            }
+            requestAnimationFrame(animateDisco);
+        }
+
+        initDiscoOrbs();
+        animateDisco();
+
+        // Dance Floor
+        const danceFloor = document.getElementById('danceFloor');
+        for (let i = 0; i < 50; i++) {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            danceFloor.appendChild(tile);
+        }
+
+        danceFloor.addEventListener('click', (event) => {
+            const tiles = document.querySelectorAll('.tile');
+            tiles.forEach(tile => {
+                tile.classList.add('active');
+                tile.style.background = `hsl(${Math.random() * 360}, 80%, 60%)`;
+                setTimeout(() => tile.classList.remove('active'), 500);
+            });
+            createConfetti();
+        });
+
         // Resize Handler
         window.addEventListener('resize', () => {
             particlesCanvas.width = window.innerWidth;
@@ -656,10 +773,13 @@
             glowCanvas.height = window.innerHeight;
             vortexCanvas.width = window.innerWidth;
             vortexCanvas.height = window.innerHeight;
+            discoCanvas.width = window.innerWidth;
+            discoCanvas.height = window.innerHeight;
             initParticles();
             initCubeParticles();
             initGlowParticles();
             initVortex();
+            initDiscoOrbs();
         });
 
         // Initialize first section
