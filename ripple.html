@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ripple Vibe Page</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: linear-gradient(120deg, #ffbe76, #ff758f, #6b48ff);
+            background-size: 400%;
+            animation: gradientFlow 10s ease infinite;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            cursor: none;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 {
+            font-size: 3.9em;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+            animation: waveText 2s ease-in-out infinite;
+        }
+
+        @keyframes waveText {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        p {
+            font-size: 1.5em;
+            margin: 20px 0;
+            animation: fadeIn 2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .color-button {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            color: #fff;
+            background: linear-gradient(45deg, #ff758f, #ffbe76);
+            border: none;
+            border-radius: 30px;
+            cursor: none;
+            transition: background 0.5s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        .color-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(45deg, #ffbe76, #ff758f);
+        }
+
+        .cursor {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 20%, rgba(255, 117, 143, 0.3) 70%);
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="rippleCanvas"></canvas>
+    <div class="cursor" id="cursor"></div>
+    <div>
+        <h1>Ripple the Vibe!</h1>
+        <p>Click anywhere to create ripples!</p>
+        <button class="color-button" onmouseover="showDefaultCursor()" onmouseout="hideDefaultCursor()" onclick="changeRippleColor()">Change Ripple Color</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('rippleCanvas');
+        const ctx = canvas.getContext('2d');
+        const cursor = document.getElementById('cursor');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let ripples = [];
+        let currentColor = `hsl(${Math.random() * 360}, 80%, 60%)`;
+
+        class Ripple {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 0;
+                this.maxRadius = 100;
+                this.opacity = 1;
+                this.color = currentColor;
+            }
+
+            update() {
+                this.radius += 2;
+                this.opacity -= 0.015;
+                return this.radius < this.maxRadius && this.opacity > 0;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(${parseInt(this.color.slice(4, -8).split(',')[0])}, ${parseInt(this.color.slice(4, -8).split(',')[1])}, ${parseInt(this.color.slice(4, -8).split(',')[2])}, ${this.opacity})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ripples = ripples.filter(ripple => ripple.update());
+            ripples.forEach(ripple => ripple.draw());
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        canvas.addEventListener('click', (event) => {
+            ripples.push(new Ripple(event.clientX, event.clientY));
+        });
+
+        function changeRippleColor() {
+            currentColor = `hsl(${Math.random() * 360}, 80%, 60%)`;
+        }
+
+        window.addEventListener('mousemove', (event) => {
+            cursor.style.left = `${event.clientX - 10}px`;
+            cursor.style.top = `${event.clientY - 10}px`;
+        });
+
+        function showDefaultCursor() {
+            cursor.style.display = 'none';
+            document.body.style.cursor = 'pointer';
+        }
+
+        function hideDefaultCursor() {
+            cursor.style.display = 'block';
+            document.body.style.cursor = 'none';
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
