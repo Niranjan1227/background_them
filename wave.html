@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wave Vibe Page</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #feca57, #ff6b6b, #4834d4);
+            background-size: 400%;
+            animation: gradientFlow 12s ease infinite;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        p {
+            font-size: 1.3em;
+            margin: 20px 0;
+            animation: slideIn 2s ease-out;
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateX(-100px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .color-button {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            color: #fff;
+            background: #1dd1a1;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .color-button:hover {
+            transform: scale(1.15);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="waveCanvas"></canvas>
+    <div>
+        <h1>Ride the Wave!</h1>
+        <p>Click the button to switch vibes!</p>
+        <button class="color-button" onclick="changeColors()">Change Vibe</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let time = 0;
+        const wave = {
+            amplitude: 50,
+            wavelength: 0.03,
+            frequency: 0.02
+        };
+
+        function drawWave() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            for (let x = 0; x < canvas.width; x++) {
+                const y = canvas.height / 2 + Math.sin(x * wave.wavelength + time) * wave.amplitude;
+                ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            time += wave.frequency;
+            requestAnimationFrame(drawWave);
+        }
+
+        drawWave();
+
+        function changeColors() {
+            const colors = [
+                ['#feca57', '#ff6b6b', '#4834d4'],
+                ['#ff9ff3', '#feca57', '#1dd1a1'],
+                ['#54a0ff', '#00d2d3', '#ff6b6b']
+            ];
+            const randomPalette = colors[Math.floor(Math.random() * colors.length)];
+            document.body.style.background = `linear-gradient(135deg, ${randomPalette[0]}, ${randomPalette[1]}, ${randomPalette[2]})`;
+            document.body.style.backgroundSize = '400%';
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
