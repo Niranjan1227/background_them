@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Vibe Website</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96cecf);
+            background-size: 400%;
+            animation: gradientFlow 15s ease infinite;
+            color: #fff;
+            height: 100vh;
+            text-align: center;
+            transition: background 1s ease;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        nav {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 25px;
+            z-index: 100;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1.2em;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #ffbe76;
+        }
+
+        section {
+            min-height: 100vh;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        section.active {
+            display: flex;
+        }
+
+        h1 {
+            font-size: 3.8em;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+
+        p {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .theme-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background: #ff4757;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .theme-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Particle Section */
+        #particles h1 {
+            animation: bounce 2s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+
+        /* Wave Section */
+        #wave h1 {
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Cube Section */
+        #cube h1 {
+            animation: floatText 2.5s ease-in-out infinite;
+        }
+
+        @keyframes floatText {
+            0% { transform: translateZ(0); }
+            50% { transform: translateZ(20px); }
+            100% { transform: translateZ(0); }
+        }
+
+        .cube-container {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateCube 10s linear infinite;
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid #fff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .front  { transform: translateZ(100px); }
+        .back   { transform: translateZ(-100px) rotateY(180deg); }
+        .right  { transform: translateX(100px) rotateY(90deg); }
+        .left   { transform: translateX(-100px) rotateY(-90deg); }
+        .top    { transform: translateY(-100px) rotateX(90deg); }
+        .bottom { transform: translateY(100px) rotateX(-90deg); }
+
+        @keyframes rotateCube {
+            0% { transform: rotateX(0deg) rotateY(0deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        /* Glow Section */
+        #glow h1 {
+            animation: glowText 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes glowText {
+            from { text-shadow: 0 0 10px #fff, 0 0 20px #ff006e, 0 0 30px #ff006e; }
+            to { text-shadow: 0 0 20px #fff, 0 0 30px #2ec4b6, 0 0 40px #2ec4b6; }
+        }
+
+        .cursor {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 20%, rgba(255, 117, 143, 0.3) 70%);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Vortex Section */
+        #vortex h1 {
+            animation: swirlText 3s ease-in-out infinite;
+        }
+
+        @keyframes swirlText {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(10deg) scale(1.05); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#particles" onclick="showSection('particles')">Particles</a>
+        <a href="#wave" onclick="showSection('wave')">Wave</a>
+        <a href="#cube" onclick="showSection('cube')">Cube</a>
+        <a href="#glow" onclick="showSection('glow')">Glow</a>
+        <a href="#vortex" onclick="showSection('vortex')">Vortex</a>
+    </nav>
+    <button class="theme-button" onclick="changeTheme()">Switch Theme</button>
+    <div class="cursor" id="cursor" style="display: none;"></div>
+
+    <section id="particles" class="active">
+        <canvas id="particlesCanvas"></canvas>
+        <h1>Vibe with Particles!</h1>
+        <p>Feel the flow, enjoy the glow!</p>
+    </section>
+
+    <section id="wave">
+        <canvas id="waveCanvas"></canvas>
+        <h1>Ride the Wave!</h1>
+        <p>Flow with the rhythm!</p>
+    </section>
+
+    <section id="cube">
+        <canvas id="cubeCanvas"></canvas>
+        <h1>Cube the Vibe!</h1>
+        <p>Spin into the flow!</p>
+        <div class="cube-container">
+            <div class="cube-face front"></div>
+            <div class="cube-face back"></div>
+            <div class="cube-face right"></div>
+            <div class="cube-face left"></div>
+            <div class="cube-face top"></div>
+            <div class="cube-face bottom"></div>
+        </div>
+    </section>
+
+    <section id="glow">
+        <canvas id="glowCanvas"></canvas>
+        <h1>Glow with the Flow!</h1>
+        <p>Light up the vibe!</p>
+    </section>
+
+    <section id="vortex">
+        <canvas id="vortexCanvas"></canvas>
+        <h1>Swirl the Vibe!</h1>
+        <p>Spin into the vortex!</p>
+    </section>
+
+    <script>
+        // Theme Switcher
+        const themes = [
+            ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96cecf'],
+            ['#feca57', '#ff5e78', '#4834d4'],
+            ['#f72585', '#7209b7', '#3a0ca3'],
+            ['#ffbe76', '#ff758f', '#6b48ff'],
+            ['#00ddeb', '#ff5e78', '#a14f9d']
+        ];
+
+        function changeTheme() {
+            const theme = themes[Math.floor(Math.random() * themes.length)];
+            document.body.style.background = `linear-gradient(45deg, ${theme.join(', ')})`;
+        }
+
+        // Section Navigation
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(id).classList.add('active');
+            if (id === 'glow') {
+                document.getElementById('cursor').style.display = 'block';
+                document.body.style.cursor = 'none';
+            } else {
+                document.getElementById('cursor').style.display = 'none';
+                document.body.style.cursor = 'default';
+            }
+        }
+
+        // Particle Section
+        const particlesCanvas = document.getElementById('particlesCanvas');
+        const particlesCtx = particlesCanvas.getContext('2d');
+        particlesCanvas.width = window.innerWidth;
+        particlesCanvas.height = window.innerHeight;
+        const particles = [];
+        const particleCount = 100;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * particlesCanvas.width;
+                this.y = Math.random() * particlesCanvas.height;
+                this.size = Math.random() * 5 + 2;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 2 - 1;
+                this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.size > 0.2) this.size -= 0.01;
+                if (this.x < 0 || this.x > particlesCanvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > particlesCanvas.height) this.speedY *= -1;
+            }
+
+            draw() {
+                particlesCtx.beginPath();
+                particlesCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                particlesCtx.fillStyle = this.color;
+                particlesCtx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles.length = 0;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            if (document.getElementById('particles').classList.contains('active')) {
+                particlesCtx.clearRect(0, 0, particlesCanvas.width, particlesCanvas.height);
+                particles.forEach((particle, index) => {
+                    particle.update();
+                    particle.draw();
+                    if (particle.size <= 0.2) {
+                        particles.splice(index, 1);
+                        particles.push(new Particle());
+                    }
+                });
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+
+        // Wave Section
+        const waveCanvas = document.getElementById('waveCanvas');
+        const waveCtx = waveCanvas.getContext('2d');
+        waveCanvas.width = window.innerWidth;
+        waveCanvas.height = window.innerHeight;
+        let time = 0;
+        const wave = {
+            amplitude: 50,
+            wavelength: 0.03,
+            frequency: 0.02
+        };
+
+        function drawWave() {
+            if (document.getElementById('wave').classList.contains('active')) {
+                waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+                waveCtx.beginPath();
+                for (let x = 0; x < waveCanvas.width; x++) {
+                    const y = waveCanvas.height / 2 + Math.sin(x * wave.wavelength + time) * wave.amplitude;
+                    waveCtx.lineTo(x, y);
+                }
+                waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                waveCtx.lineWidth = 2;
+                waveCtx.stroke();
+                time += wave.frequency;
+            }
+            requestAnimationFrame(drawWave);
+        }
+
+        drawWave();
+
+        // Cube Section
+        const cubeCanvas = document.getElementById('cubeCanvas');
+        const cubeCtx = cubeCanvas.getContext('2d');
+        cubeCanvas.width = window.innerWidth;
+        cubeCanvas.height = window.innerHeight;
+        let cubeParticles = [];
+        const cubeParticleCount = 60;
+        let cubeMouse = { x: null, y: null };
+
+        class CubeParticle {
+            constructor() {
+                this.x = Math.random() * cubeCanvas.width;
+                this.y = Math.random() * cubeCanvas.height;
+                this.size = Math.random() * 4 + 2;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = `hsl(${Math.random() * 360}, 90%, 70%)`;
+            }
+
+            update() {
+                if (cubeMouse.x && cubeMouse.y) {
+                    let dx = cubeMouse.x - this.x;
+                    let dy = cubeMouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 120) {
+                        this.speedX += dx / distance;
+                        this.speedY += dy / distance;
+                    }
+                }
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.size > 0.2) this.size -= 0.02;
+                if (this.x < 0 || this.x > cubeCanvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > cubeCanvas.height) this.speedY *= -1;
+            }
+
+            draw() {
+                cubeCtx.beginPath();
+                cubeCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                cubeCtx.fillStyle = this.color;
+                cubeCtx.shadowBlur = 10;
+                cubeCtx.shadowColor = this.color;
+                cubeCtx.fill();
+            }
+        }
+
+        function initCubeParticles() {
+            cubeParticles.length = 0;
+            for (let i = 0; i < cubeParticleCount; i++) {
+                cubeParticles.push(new CubeParticle());
+            }
+        }
+
+        function animateCubeParticles() {
+            if (document.getElementById('cube').classList.contains('active')) {
+                cubeCtx.clearRect(0, 0, cubeCanvas.width, cubeCanvas.height);
+                cubeParticles.forEach((particle, index) => {
+                    particle.update();
+                    particle.draw();
+                    if (particle.size <= 0.2) {
+                        cubeParticles.splice(index, 1);
+                        cubeParticles.push(new CubeParticle());
+                    }
+                });
+            }
+            requestAnimationFrame(animateCubeParticles);
+        }
+
+        initCubeParticles();
+        animateCubeParticles();
+
+        window.addEventListener('mousemove', (event) => {
+            cubeMouse.x = event.x;
+            cubeMouse.y = event.y;
+        });
+
+        window.addEventListener('mouseout', () => {
+            cubeMouse.x = null;
+            cubeMouse.y = null;
+        });
+
+        // Glow Section
+        const glowCanvas = document.getElementById('glowCanvas');
+        const glowCtx = glowCanvas.getContext('2d');
+        glowCanvas.width = window.innerWidth;
+        glowCanvas.height = window.innerHeight;
+        let glowMouse = { x: null, y: null };
+        let glowParticles = [];
+        const glowParticleCount = 50;
+
+        class GlowParticle {
+            constructor() {
+                this.x = Math.random() * glowCanvas.width;
+                this.y = Math.random() * glowCanvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 2 - 1;
+                this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+            }
+
+            update() {
+                if (glowMouse.x && glowMouse.y) {
+                    let dx = glowMouse.x - this.x;
+                    let dy = glowMouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 150) {
+                        let angle = Math.atan2(dy, dx);
+                        this.speedX = -Math.cos(angle) * 2;
+                        this.speedY = -Math.sin(angle) * 2;
+                    }
+                }
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.size > 0.1) this.size -= 0.015;
+                if (this.x < 0 || this.x > glowCanvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > glowCanvas.height) this.speedY *= -1;
+            }
+
+            draw() {
+                glowCtx.beginPath();
+                glowCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                glowCtx.fillStyle = this.color;
+                glowCtx.fill();
+            }
+        }
+
+        function initGlowParticles() {
+            glowParticles.length = 0;
+            for (let i = 0; i < glowParticleCount; i++) {
+                glowParticles.push(new GlowParticle());
+            }
+        }
+
+        function drawGlow() {
+            if (document.getElementById('glow').classList.contains('active')) {
+                glowCtx.clearRect(0, 0, glowCanvas.width, glowCanvas.height);
+                if (glowMouse.x && glowMouse.y) {
+                    glowCtx.beginPath();
+                    const gradient = glowCtx.createRadialGradient(glowMouse.x, glowMouse.y, 0, glowMouse.x, glowMouse.y, 100);
+                    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+                    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                    glowCtx.arc(glowMouse.x, glowMouse.y, 100, 0, Math.PI * 2);
+                    glowCtx.fillStyle = gradient;
+                    glowCtx.fill();
+                }
+                glowParticles.forEach((particle, index) => {
+                    particle.update();
+                    particle.draw();
+                    if (particle.size <= 0.1) {
+                        glowParticles.splice(index, 1);
+                        glowParticles.push(new GlowParticle());
+                    }
+                });
+            }
+            requestAnimationFrame(drawGlow);
+        }
+
+        initGlowParticles();
+        drawGlow();
+
+        window.addEventListener('mousemove', (event) => {
+            glowMouse.x = event.x;
+            glowMouse.y = event.y;
+            document.getElementById('cursor').style.left = `${event.clientX - 10}px`;
+            document.getElementById('cursor').style.top = `${event.clientY - 10}px`;
+        });
+
+        window.addEventListener('mouseout', () => {
+            glowMouse.x = null;
+            glowMouse.y = null;
+        });
+
+        // Vortex Section
+        const vortexCanvas = document.getElementById('vortexCanvas');
+        const vortexCtx = vortexCanvas.getContext('2d');
+        vortexCanvas.width = window.innerWidth;
+        vortexCanvas.height = window.innerHeight;
+        let vortexParticles = [];
+        const vortexParticleCount = 100;
+
+        class VortexParticle {
+            constructor() {
+                this.angle = Math.random() * Math.PI * 2;
+                this.radius = Math.random() * 100 + 50;
+                this.x = vortexCanvas.width / 2 + Math.cos(this.angle) * this.radius;
+                this.y = vortexCanvas.height / 2 + Math.sin(this.angle) * this.radius;
+                this.size = Math.random() * 3 + 1;
+                this.speed = Math.random() * 0.05 + 0.02;
+                this.color = `hsl(${Math.random() * 360}, 80%, 60%)`;
+            }
+
+            update() {
+                this.angle += this.speed;
+                this.radius += 0.1;
+                this.x = vortexCanvas.width / 2 + Math.cos(this.angle) * this.radius;
+                this.y = vortexCanvas.height / 2 + Math.sin(this.angle) * this.radius;
+                if (this.size > 0.1) this.size -= 0.01;
+                return this.size > 0.1;
+            }
+
+            draw() {
+                vortexCtx.beginPath();
+                vortexCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                vortexCtx.fillStyle = this.color;
+                vortexCtx.fill();
+            }
+        }
+
+        function initVortex() {
+            vortexParticles.length = 0;
+            for (let i = 0; i < vortexParticleCount; i++) {
+                vortexParticles.push(new VortexParticle());
+            }
+        }
+
+        function animateVortex() {
+            if (document.getElementById('vortex').classList.contains('active')) {
+                vortexCtx.clearRect(0, 0, vortexCanvas.width, vortexCanvas.height);
+                vortexParticles.forEach((particle, index) => {
+                    if (!particle.update()) {
+                        vortexParticles.splice(index, 1);
+                        vortexParticles.push(new VortexParticle());
+                    }
+                    particle.draw();
+                });
+            }
+            requestAnimationFrame(animateVortex);
+        }
+
+        initVortex();
+        animateVortex();
+
+        // Resize Handler
+        window.addEventListener('resize', () => {
+            particlesCanvas.width = window.innerWidth;
+            particlesCanvas.height = window.innerHeight;
+            waveCanvas.width = window.innerWidth;
+            waveCanvas.height = window.innerHeight;
+            cubeCanvas.width = window.innerWidth;
+            cubeCanvas.height = window.innerHeight;
+            glowCanvas.width = window.innerWidth;
+            glowCanvas.height = window.innerHeight;
+            vortexCanvas.width = window.innerWidth;
+            vortexCanvas.height = window.innerHeight;
+            initParticles();
+            initCubeParticles();
+            initGlowParticles();
+            initVortex();
+        });
+
+        // Initialize first section
+        showSection('particles');
+    </script>
+</body>
+</html>
